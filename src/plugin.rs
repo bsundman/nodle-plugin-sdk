@@ -1,6 +1,9 @@
 //! Plugin interface and metadata
 
-use crate::{NodeMetadata, PluginError, NodeRegistryTrait};
+use crate::{NodeMetadata, PluginError, NodeRegistryTrait, NodeCategory};
+
+// Viewport rendering is now handled by the core using viewport data
+// See viewport.rs for the new data-driven approach
 
 /// Plugin metadata
 #[derive(Debug, Clone)]
@@ -12,6 +15,20 @@ pub struct PluginInfo {
     pub compatible_version: String, // Nodle version compatibility
 }
 
+/// Menu structure for organizing nodes in the UI
+#[derive(Debug, Clone)]
+pub enum MenuStructure {
+    Category {
+        name: String,
+        items: Vec<MenuStructure>,
+    },
+    Node {
+        name: String,
+        node_type: String,
+        metadata: NodeMetadata,
+    },
+}
+
 /// Main plugin trait that external libraries must implement
 pub trait NodePlugin: Send + Sync {
     /// Plugin metadata
@@ -19,6 +36,11 @@ pub trait NodePlugin: Send + Sync {
     
     /// Register all nodes provided by this plugin
     fn register_nodes(&self, registry: &mut dyn NodeRegistryTrait);
+    
+    /// Get the menu structure for this plugin's nodes
+    fn get_menu_structure(&self) -> Vec<MenuStructure> {
+        Vec::new() // Default: no custom menu structure
+    }
     
     /// Called when plugin is loaded (optional)
     fn on_load(&self) -> Result<(), PluginError> {
@@ -62,6 +84,29 @@ pub trait PluginNode: Send + Sync {
     
     /// Process the node (execute its functionality)
     fn process(&mut self, inputs: &std::collections::HashMap<String, NodeData>) -> std::collections::HashMap<String, NodeData>;
+    
+    /// Get viewport data for rendering (for viewport-type nodes)
+    fn get_viewport_data(&self) -> Option<crate::viewport::ViewportData> {
+        // Default implementation for non-viewport nodes
+        None
+    }
+    
+    /// Handle viewport camera manipulation (for viewport-type nodes)
+    fn handle_viewport_camera(&mut self, manipulation: crate::viewport::CameraManipulation) {
+        // Default implementation for non-viewport nodes
+        // Does nothing
+    }
+    
+    /// Handle viewport settings changes (for viewport-type nodes)
+    fn handle_viewport_settings(&mut self, settings: crate::viewport::ViewportSettings) {
+        // Default implementation for non-viewport nodes
+        // Does nothing
+    }
+    
+    /// Check if this node supports viewport rendering
+    fn supports_viewport(&self) -> bool {
+        false
+    }
 }
 
 /// Parameter change notification

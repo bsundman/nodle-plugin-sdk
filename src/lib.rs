@@ -32,6 +32,7 @@ pub mod metadata;
 pub mod plugin;
 pub mod registry;
 pub mod errors;
+pub mod viewport;
 
 // Re-export commonly used types
 pub use data_types::*;
@@ -39,6 +40,7 @@ pub use metadata::*;
 pub use plugin::*;
 pub use registry::*;
 pub use errors::*;
+pub use viewport::*;
 
 // Re-export egui for convenience
 pub use egui::{Color32, Pos2, Vec2, Ui};
