@@ -29,6 +29,7 @@ pub enum MenuStructure {
     },
 }
 
+
 /// Main plugin trait that external libraries must implement
 pub trait NodePlugin: Send + Sync {
     /// Plugin metadata
@@ -53,13 +54,75 @@ pub trait NodePlugin: Send + Sync {
     }
 }
 
+/// Concrete wrapper for safe FFI transfer
+/// This avoids the undefined behavior of passing trait objects through extern "C"
+#[repr(C)]
+pub struct PluginHandle {
+    plugin: *mut dyn NodePlugin,
+}
+
+impl PluginHandle {
+    /// Create a new handle from a boxed plugin
+    pub fn new(plugin: Box<dyn NodePlugin>) -> Self {
+        Self {
+            plugin: Box::into_raw(plugin),
+        }
+    }
+    
+    /// Convert back to a boxed plugin (takes ownership)
+    pub unsafe fn into_plugin(self) -> Box<dyn NodePlugin> {
+        Box::from_raw(self.plugin)
+    }
+    
+    /// Get a reference to the plugin
+    pub unsafe fn as_plugin(&self) -> &dyn NodePlugin {
+        &*self.plugin
+    }
+    
+    /// Get a mutable reference to the plugin
+    pub unsafe fn as_plugin_mut(&mut self) -> &mut dyn NodePlugin {
+        &mut *self.plugin
+    }
+}
+
+/// Concrete wrapper for safe plugin node transfer
+/// This avoids passing trait objects directly between plugin and core
+#[repr(C)]
+pub struct PluginNodeHandle {
+    node: *mut dyn PluginNode,
+}
+
+impl PluginNodeHandle {
+    /// Create a new handle from a boxed plugin node
+    pub fn new(node: Box<dyn PluginNode>) -> Self {
+        Self {
+            node: Box::into_raw(node),
+        }
+    }
+    
+    /// Convert back to a boxed plugin node (takes ownership)
+    pub unsafe fn into_node(self) -> Box<dyn PluginNode> {
+        Box::from_raw(self.node)
+    }
+    
+    /// Get a reference to the plugin node
+    pub unsafe fn as_node(&self) -> &dyn PluginNode {
+        &*self.node
+    }
+    
+    /// Get a mutable reference to the plugin node
+    pub unsafe fn as_node_mut(&mut self) -> &mut dyn PluginNode {
+        &mut *self.node
+    }
+}
+
 /// Node factory trait for creating nodes
 pub trait NodeFactory: Send + Sync {
     /// Get metadata for this node type
     fn metadata(&self) -> NodeMetadata;
     
     /// Create a new node instance at the given position
-    fn create_node(&self, position: egui::Pos2) -> Box<dyn PluginNode>;
+    fn create_node(&self, position: egui::Pos2) -> PluginNodeHandle;
 }
 
 /// Simplified node interface for plugins
@@ -73,8 +136,11 @@ pub trait PluginNode: Send + Sync {
     /// Set the node's position
     fn set_position(&mut self, position: egui::Pos2);
     
-    /// Render the node's parameter interface
-    fn render_parameters(&mut self, ui: &mut egui::Ui) -> Vec<ParameterChange>;
+    /// Get the parameter UI description
+    fn get_parameter_ui(&self) -> ParameterUI;
+    
+    /// Handle UI actions
+    fn handle_ui_action(&mut self, action: UIAction) -> Vec<ParameterChange>;
     
     /// Get a parameter value
     fn get_parameter(&self, name: &str) -> Option<NodeData>;
@@ -116,7 +182,63 @@ pub struct ParameterChange {
     pub value: NodeData,
 }
 
-/// Node data types for parameter values
+/// Normal Rust types for plugin UI
+#[derive(Debug, Clone)]
+pub enum UIElement {
+    Heading(String),
+    Label(String),
+    Separator,
+    TextEdit {
+        label: String,
+        value: String,
+        parameter_name: String,
+    },
+    Checkbox {
+        label: String,
+        value: bool,
+        parameter_name: String,
+    },
+    Button {
+        label: String,
+        action: String,
+    },
+    Slider {
+        label: String,
+        value: f32,
+        min: f32,
+        max: f32,
+        parameter_name: String,
+    },
+    Vec3Edit {
+        label: String,
+        value: [f32; 3],
+        parameter_name: String,
+    },
+    ColorEdit {
+        label: String,
+        value: [f32; 3],
+        parameter_name: String,
+    },
+    Horizontal(Vec<UIElement>),
+    Vertical(Vec<UIElement>),
+}
+
+#[derive(Debug, Clone)]
+pub struct ParameterUI {
+    pub elements: Vec<UIElement>,
+}
+
+#[derive(Debug, Clone)]
+pub enum UIAction {
+    ParameterChanged {
+        parameter: String,
+        value: NodeData,
+    },
+    ButtonClicked {
+        action: String,
+    },
+}
+
 #[derive(Debug, Clone)]
 pub enum NodeData {
     Float(f32),
@@ -159,3 +281,4 @@ impl NodeData {
         }
     }
 }
+
