@@ -1,6 +1,6 @@
 # Nodle Plugin SDK
 
-The official Plugin SDK for [Nodle](https://github.com/your-username/nodle) - a node-based visual programming editor.
+The official Plugin SDK for [Nodle](https://github.com/bsundman/nodle) - a node-based visual programming editor.
 
 This SDK provides the core interfaces and types needed to create dynamic plugins that can be loaded at runtime into Nodle.
 
@@ -18,7 +18,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-nodle-plugin-sdk = { git = "https://github.com/your-username/nodle-plugin-sdk" }
+nodle-plugin-sdk = { git = "https://github.com/bsundman/nodle-plugin-sdk" }
 
 [lib]
 crate-type = ["cdylib"]
@@ -112,7 +112,7 @@ pub extern "C" fn destroy_plugin(plugin: *mut dyn NodePlugin) {
 
 ## Examples
 
-See the [plugin template](https://github.com/your-username/nodle-plugin-template) for a complete working example with:
+See the [plugin template](https://github.com/bsundman/nodle-plugin-template) for a complete working example with:
 
 - Hello World node with editable text
 - Math Add node with numeric inputs/outputs  
@@ -154,5 +154,5 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ## Related Projects
 
-- [Nodle](https://github.com/your-username/nodle) - The main node editor
-- [Plugin Template](https://github.com/your-username/nodle-plugin-template) - Starter template for plugins
+- [Nodle](https://github.com/bsundman/nodle) - The main node editor
+- [Plugin Template](https://github.com/bsundman/nodle-plugin-template) - Starter template for plugins
