@@ -1,7 +1,7 @@
 //! Viewport data interface for 3D scene rendering
 //! 
-//! This module provides the clean interface for plugins to provide 3D scene data
-//! without directly handling egui or wgpu rendering. The core handles all rendering.
+//! This module provides the viewport types that both core and plugins use.
+//! The core imports these types for consistent interfaces.
 
 use serde::{Deserialize, Serialize};
 
@@ -208,6 +208,21 @@ impl Default for ViewportData {
     }
 }
 
+/// Camera manipulation actions
+#[derive(Debug, Clone)]
+pub enum CameraManipulation {
+    /// Orbit camera around target
+    Orbit { delta_x: f32, delta_y: f32 },
+    /// Pan camera and target
+    Pan { delta_x: f32, delta_y: f32 },
+    /// Zoom camera towards/away from target
+    Zoom { delta: f32 },
+    /// Reset camera to default position
+    Reset,
+    /// Set camera to specific position and target
+    SetPosition { position: [f32; 3], target: [f32; 3] },
+}
+
 /// Trait for plugins to provide viewport data to the core
 pub trait ViewportDataProvider: Send + Sync {
     /// Get the current viewport data
@@ -223,17 +238,3 @@ pub trait ViewportDataProvider: Send + Sync {
     fn update_scene(&mut self, scene_data: SceneData);
 }
 
-/// Camera manipulation actions
-#[derive(Debug, Clone)]
-pub enum CameraManipulation {
-    /// Orbit camera around target
-    Orbit { delta_x: f32, delta_y: f32 },
-    /// Pan camera and target
-    Pan { delta_x: f32, delta_y: f32 },
-    /// Zoom camera towards/away from target
-    Zoom { delta: f32 },
-    /// Reset camera to default position
-    Reset,
-    /// Set camera to specific position and target
-    SetPosition { position: [f32; 3], target: [f32; 3] },
-}
