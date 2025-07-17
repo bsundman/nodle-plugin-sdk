@@ -73,6 +73,12 @@ impl NodeCategory {
     pub fn geometry_3d() -> Self { Self::new(&["3D", "Geometry"]) }
     /// Get 3D lighting category
     pub fn lighting_3d() -> Self { Self::new(&["3D", "Lighting"]) }
+    /// Get Cycles rendering category
+    pub fn cycles_rendering() -> Self { Self::new(&["3D", "Cycles", "Rendering"]) }
+    /// Get Cycles material category
+    pub fn cycles_material() -> Self { Self::new(&["3D", "Cycles", "Material"]) }
+    /// Get Cycles lighting category
+    pub fn cycles_lighting() -> Self { Self::new(&["3D", "Cycles", "Lighting"]) }
 }
 
 /// Port definition for node creation

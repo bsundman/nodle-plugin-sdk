@@ -16,6 +16,8 @@ pub enum DataType {
     String,
     /// Boolean value
     Boolean,
+    /// USD scene data
+    USDScene,
     /// Any type (for generic ports)
     Any,
 }
@@ -34,6 +36,7 @@ impl DataType {
             DataType::Color => "Color",
             DataType::String => "String",
             DataType::Boolean => "Boolean",
+            DataType::USDScene => "USD Scene",
             DataType::Any => "Any",
         }
     }
@@ -46,6 +49,7 @@ impl DataType {
             DataType::Color => Color32::from_rgb(255, 200, 100), // Orange
             DataType::String => Color32::from_rgb(100, 255, 100), // Green
             DataType::Boolean => Color32::from_rgb(255, 100, 255), // Magenta
+            DataType::USDScene => Color32::from_rgb(70, 130, 180), // Steel blue
             DataType::Any => Color32::from_rgb(150, 150, 150), // Gray
         }
     }

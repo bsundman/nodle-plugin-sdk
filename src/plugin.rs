@@ -246,6 +246,7 @@ pub enum NodeData {
     Color([f32; 3]),
     String(String),
     Boolean(bool),
+    USDScene(String), // USD scene data represented as JSON string for plugin interface
 }
 
 impl NodeData {
@@ -277,6 +278,14 @@ impl NodeData {
     pub fn as_boolean(&self) -> Option<bool> {
         match self {
             NodeData::Boolean(b) => Some(*b),
+            _ => None,
+        }
+    }
+    
+    /// Try to extract as USD scene data
+    pub fn as_usd_scene(&self) -> Option<&str> {
+        match self {
+            NodeData::USDScene(s) => Some(s),
             _ => None,
         }
     }
