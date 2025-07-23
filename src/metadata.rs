@@ -1,6 +1,6 @@
 //! Node metadata and categorization system
 
-use crate::DataType;
+use crate::{DataType, PanelType};
 use egui::{Color32, Vec2};
 use serde::{Deserialize, Serialize};
 
@@ -157,13 +157,6 @@ pub enum ProcessingCost {
     VeryHigh,     // > 1s
 }
 
-/// Panel type for interface management
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub enum PanelType {
-    Parameter,    // Parameter editing panel
-    Viewport,     // Viewport/preview panel
-    Combined,     // Both parameter and viewport
-}
 
 /// Rich metadata for nodes - the single source of truth for all node behavior
 #[derive(Debug, Clone)]

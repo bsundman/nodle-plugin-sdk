@@ -1,6 +1,6 @@
 //! Plugin interface and metadata
 
-use crate::{NodeMetadata, PluginError, NodeRegistryTrait, NodeCategory};
+use crate::{NodeMetadata, PluginError, NodeRegistryTrait, NodeCategory, NodeData, ParameterUI, UIAction, ParameterChange};
 
 // Viewport rendering is now handled by the core using viewport data
 // See viewport.rs for the new data-driven approach
@@ -151,6 +151,28 @@ pub trait PluginNode: Send + Sync {
     /// Process the node (execute its functionality)
     fn process(&mut self, inputs: &std::collections::HashMap<String, NodeData>) -> std::collections::HashMap<String, NodeData>;
     
+    /// Process the node with access to the cache system (optional override)
+    /// 
+    /// Plugins can override this method to use the advanced caching system.
+    /// If not overridden, falls back to the basic process() method.
+    fn process_with_cache(
+        &mut self, 
+        inputs: &std::collections::HashMap<String, NodeData>,
+        cache: &mut dyn crate::cache::PluginCache,
+        node_id: u32
+    ) -> std::collections::HashMap<String, NodeData> {
+        // Default implementation falls back to basic process
+        self.process(inputs)
+    }
+    
+    /// Get execution hooks for this node (optional)
+    /// 
+    /// Plugins can return hooks to participate in the execution lifecycle.
+    /// Return None for nodes that don't need advanced lifecycle management.
+    fn get_execution_hooks(&self) -> Option<Box<dyn crate::hooks::NodeExecutionHooks>> {
+        None
+    }
+    
     /// Get viewport data for rendering (for viewport-type nodes)
     fn get_viewport_data(&self) -> Option<crate::viewport::ViewportData> {
         // Default implementation for non-viewport nodes
@@ -172,122 +194,6 @@ pub trait PluginNode: Send + Sync {
     /// Check if this node supports viewport rendering
     fn supports_viewport(&self) -> bool {
         false
-    }
-}
-
-/// Parameter change notification
-#[derive(Debug, Clone)]
-pub struct ParameterChange {
-    pub parameter: String,
-    pub value: NodeData,
-}
-
-/// Normal Rust types for plugin UI
-#[derive(Debug, Clone)]
-pub enum UIElement {
-    Heading(String),
-    Label(String),
-    Separator,
-    TextEdit {
-        label: String,
-        value: String,
-        parameter_name: String,
-    },
-    Checkbox {
-        label: String,
-        value: bool,
-        parameter_name: String,
-    },
-    Button {
-        label: String,
-        action: String,
-    },
-    Slider {
-        label: String,
-        value: f32,
-        min: f32,
-        max: f32,
-        parameter_name: String,
-    },
-    Vec3Edit {
-        label: String,
-        value: [f32; 3],
-        parameter_name: String,
-    },
-    ColorEdit {
-        label: String,
-        value: [f32; 3],
-        parameter_name: String,
-    },
-    Horizontal(Vec<UIElement>),
-    Vertical(Vec<UIElement>),
-}
-
-#[derive(Debug, Clone)]
-pub struct ParameterUI {
-    pub elements: Vec<UIElement>,
-}
-
-#[derive(Debug, Clone)]
-pub enum UIAction {
-    ParameterChanged {
-        parameter: String,
-        value: NodeData,
-    },
-    ButtonClicked {
-        action: String,
-    },
-}
-
-#[derive(Debug, Clone)]
-pub enum NodeData {
-    Float(f32),
-    Vector3([f32; 3]),
-    Color([f32; 3]),
-    String(String),
-    Boolean(bool),
-    USDScene(String), // USD scene data represented as JSON string for plugin interface
-}
-
-impl NodeData {
-    /// Try to extract as float
-    pub fn as_float(&self) -> Option<f32> {
-        match self {
-            NodeData::Float(f) => Some(*f),
-            _ => None,
-        }
-    }
-    
-    /// Try to extract as vector3
-    pub fn as_vector3(&self) -> Option<[f32; 3]> {
-        match self {
-            NodeData::Vector3(v) => Some(*v),
-            _ => None,
-        }
-    }
-    
-    /// Try to extract as string
-    pub fn as_string(&self) -> Option<&str> {
-        match self {
-            NodeData::String(s) => Some(s),
-            _ => None,
-        }
-    }
-    
-    /// Try to extract as boolean
-    pub fn as_boolean(&self) -> Option<bool> {
-        match self {
-            NodeData::Boolean(b) => Some(*b),
-            _ => None,
-        }
-    }
-    
-    /// Try to extract as USD scene data
-    pub fn as_usd_scene(&self) -> Option<&str> {
-        match self {
-            NodeData::USDScene(s) => Some(s),
-            _ => None,
-        }
     }
 }
 
