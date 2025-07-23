@@ -6,11 +6,20 @@ This SDK provides the core interfaces and types needed to create dynamic plugins
 
 ## Features
 
+### Core Capabilities
 - **Type-safe plugin interfaces** - Well-defined traits for plugins and nodes
 - **Rich metadata system** - Comprehensive node descriptions and categorization  
 - **Cross-platform support** - Works on Windows, macOS, and Linux
 - **Runtime loading** - Dynamic library loading with hot-swapping
 - **Integration ready** - Seamless integration with Nodle's workspace system
+
+### Advanced Features (2024 Update)
+- **Complete NodeData System** - Full compatibility with Scene, Geometry, Material, USD, Light, and Image data types
+- **Multi-Stage Caching** - Intelligent caching system with stage-qualified keys for maximum performance
+- **Execution Hooks** - Complete lifecycle management with parameter change notifications
+- **Rich UI Components** - Modern parameter interfaces with sliders, color pickers, file dialogs, and more
+- **USD Integration** - Native support for USD scene data processing and manipulation
+- **Performance Optimization** - Direct access to Nodle's unified cache system
 
 ## Quick Start
 
@@ -87,17 +96,33 @@ pub extern "C" fn destroy_plugin(plugin: *mut dyn NodePlugin) {
 
 ### Data Flow
 
-- **Inputs/Outputs** - Strongly typed ports for connecting nodes
-- **Parameters** - User-configurable properties with real-time UI
-- **Processing** - Transform input data to output data
+- **Inputs/Outputs** - Strongly typed ports for connecting nodes with rich data types
+- **Parameters** - User-configurable properties with modern UI components
+- **Processing** - Transform input data to output data with optional caching
+- **USD Integration** - Native support for USD scene data, meshes, lights, and materials
+- **Caching** - Multi-stage caching for high-performance file loading and processing
 
 ## API Reference
 
 ### Core Traits
 
-- [`NodePlugin`](src/plugin.rs) - Main plugin interface
+- [`NodePlugin`](src/plugin.rs) - Main plugin interface with lifecycle management
 - [`NodeFactory`](src/plugin.rs) - Factory for creating node instances  
-- [`PluginNode`](src/plugin.rs) - Individual node implementation
+- [`PluginNode`](src/plugin.rs) - Individual node implementation with caching support
+- [`NodeExecutionHooks`](src/hooks.rs) - Lifecycle hooks for advanced cache management
+- [`PluginCache`](src/cache.rs) - Unified caching interface for performance optimization
+
+### Data Systems
+
+- [`NodeData`](src/data_types.rs) - Complete data type system with USD, Scene, Geometry, Material support
+- [`InterfaceParameter`](src/ui.rs) - Rich parameter system for modern UI components
+- [`ParameterUI`](src/ui.rs) - UI builder system for complex parameter interfaces
+
+### Advanced Features
+
+- [`MultiStageCache`](src/cache.rs) - Multi-stage caching strategy for complex operations
+- [`SimpleCache`](src/cache.rs) - Basic caching strategy for simple operations  
+- [`USDSceneData`](src/data_types.rs) - Complete USD scene data structures
 - [`NodeRegistryTrait`](src/registry.rs) - Registry for node factories
 
 ### Data Types
